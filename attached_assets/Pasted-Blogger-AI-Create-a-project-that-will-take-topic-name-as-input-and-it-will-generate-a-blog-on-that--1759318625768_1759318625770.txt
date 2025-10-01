@@ -1,0 +1,36 @@
+Blogger AI
+Create a project that will take topic name as input and it will generate a blog on that topic with images. It should support the following features:
+
+Scheduling blogs: A blog with title “How to A/B test your AI agents” should go live at a given date and time( it is the work of backend using cron jobs , you only have to implemnt its frotnend)
+Dashboard with sidebar: A UI that has different subtabs for different functionalities. Ex: Overview, Schedule, View All etc. The frontend needs to be made using shadcn. Use react + tailwind for UI/UX.
+Login Page: Normal login using email and psswd, Also create a button on top to login using google as well.
+CRUD operations: Logged in users should be able to edit/modify/post any new blogs as required.(you just have to make sure that user is able to do these tasks  on frontend part but thier fucntionlities will be implemented on backend part).
+
+FIrst of all you  have to create  a dashboard page covering all the necessary components mentioned in the project description.
+now i want the whole  frontend to be created in such a way that api calls are placed in a placeholder so that i can write directly by replacing them with my own backend endpoints.
+Also try to give be example json placeholders becuase i havent decided much which data to push and pull.
+The  blog content will be produced by ai and also i have to make a component as draft where all the blogs which have to be scheduled are placed.Now generate the dashborad I will review and reiterate if any modifications are to be made.
+
+The side bar should contain the components such as 
+overview , schedule ,view all, drafts 
+Make every button and functionality working by not giving a 404 error. 
+I just have to make the frontend part fully fucntional so that  I  can focus more only on backend part.
+I want that when my AI is genrating content in the backend part the user should see the loading page as intead of simple loading circle.
+│  Generating Your Blog... 🤖                                  │
+│                                                              │
+│  ✅ Researching topic                           [████████]  │
+│  ✅ Generating outline                          [████████]  │
+│  ⏳ Writing content...                          [████░░░░]  │
+│  ⏸️  Finding relevant images                    [░░░░░░░░]  │
+│  ⏸️  Optimizing for SEO                         [░░░░░░░░]  │
+│                                                              │
+│  This usually takes 2-3 minutes... 
+
+My view all components should use filters such as ( all status,published,scheduled,draft) 
+
+Please keep in mind these things
+1.Do not overcomplicate code.
+2.use react+tailwind+shadcn
+3.Use feedback and and animations wherever necessary on buttons and other componnts.
+4.Use solid colors rather shaded mixed colors.
+Try to use the components from shadcn for more easiness.
