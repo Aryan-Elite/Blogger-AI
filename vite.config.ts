@@ -13,7 +13,8 @@ export default defineConfig({
   },
   root: path.resolve(import.meta.dirname, "client"),
   build: {
-    outDir: path.resolve(import.meta.dirname, "dist"),
+    // Keep output inside the client root so Vercel (Root Directory: client) finds it
+    outDir: "dist",
     emptyOutDir: true,
   },
   server: {
