@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { ScheduleBlogDialog } from "@/components/schedule-blog-dialog";
-import { mockApi } from "@/lib/mockApi";
-import { Blog } from "@shared/schema";
+import { api } from "@/lib/mockApi";
+import { Blog } from "@/types/blog";
 import { useToast } from "@/hooks/use-toast";
 import { BlogCard } from "@/components/blog-card";
 import { EditBlogDialog } from "@/components/edit-blog-dialog";
@@ -19,12 +19,12 @@ export default function SchedulePage() {
   }, []);
 
   const loadBlogs = async () => {
-    const data = await mockApi.getAllBlogs();
+    const data = await api.getAllBlogs();
     setBlogs(data);
   };
 
   const handleSchedule = async (blogId: string, scheduledFor: Date) => {
-    await mockApi.scheduleBlog(blogId, scheduledFor);
+    await api.scheduleBlog(blogId, scheduledFor);
     await loadBlogs();
     toast({
       title: "Blog scheduled",
@@ -33,7 +33,7 @@ export default function SchedulePage() {
   };
 
   const handleEditBlog = async (id: string, updates: Partial<Blog>) => {
-    await mockApi.updateBlog(id, updates);
+    await api.updateBlog(id, updates);
     await loadBlogs();
     toast({
       title: "Blog updated",
@@ -42,7 +42,7 @@ export default function SchedulePage() {
   };
 
   const handleDeleteBlog = async (id: string) => {
-    await mockApi.deleteBlog(id);
+    await api.deleteBlog(id);
     await loadBlogs();
     toast({
       title: "Blog deleted",

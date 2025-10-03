@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { mockApi } from "@/lib/mockApi";
-import { Blog } from "@shared/schema";
+import { api } from "@/lib/mockApi";
+import { Blog } from "@/types/blog";
 import { BlogCard } from "@/components/blog-card";
 import { EditBlogDialog } from "@/components/edit-blog-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -19,12 +19,12 @@ export default function ViewAllPage() {
   }, []);
 
   const loadBlogs = async () => {
-    const data = await mockApi.getAllBlogs();
+    const data = await api.getAllBlogs();
     setBlogs(data);
   };
 
   const handleEditBlog = async (id: string, updates: Partial<Blog>) => {
-    await mockApi.updateBlog(id, updates);
+    await api.updateBlog(id, updates);
     await loadBlogs();
     toast({
       title: "Blog updated",
@@ -33,7 +33,7 @@ export default function ViewAllPage() {
   };
 
   const handleDeleteBlog = async (id: string) => {
-    await mockApi.deleteBlog(id);
+    await api.deleteBlog(id);
     await loadBlogs();
     toast({
       title: "Blog deleted",

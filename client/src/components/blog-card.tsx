@@ -1,8 +1,8 @@
-import { Blog } from "@shared/schema";
+import { Blog } from "@/types/blog";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Edit, Trash2 } from "lucide-react";
+import { Calendar, Edit, Trash2, Image as ImageIcon } from "lucide-react";
 import { format } from "date-fns";
 
 interface BlogCardProps {
@@ -27,6 +27,22 @@ export function BlogCard({ blog, onEdit, onDelete }: BlogCardProps) {
 
   return (
     <Card className="hover-elevate transition-all duration-200" data-testid={`card-blog-${blog.id}`}>
+      {/* Image Section */}
+      {blog.imageUrl ? (
+        <div className="w-full h-48 overflow-hidden rounded-t-md">
+          <img
+            src={blog.imageUrl}
+            alt={blog.title}
+            className="w-full h-full object-cover"
+            data-testid={`img-blog-${blog.id}`}
+          />
+        </div>
+      ) : (
+        <div className="w-full h-48 bg-muted flex items-center justify-center rounded-t-md" data-testid={`placeholder-blog-${blog.id}`}>
+          <ImageIcon className="w-12 h-12 text-muted-foreground/50" />
+        </div>
+      )}
+
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between gap-2">
           <h3 className="font-semibold text-lg leading-tight" data-testid={`text-blog-title-${blog.id}`}>
@@ -37,6 +53,7 @@ export function BlogCard({ blog, onEdit, onDelete }: BlogCardProps) {
           </Badge>
         </div>
       </CardHeader>
+
       <CardContent className="pb-3">
         <p className="text-sm text-muted-foreground mb-3" data-testid={`text-blog-content-${blog.id}`}>
           {blog.content.substring(0, 120)}...
@@ -50,6 +67,7 @@ export function BlogCard({ blog, onEdit, onDelete }: BlogCardProps) {
           </span>
         </div>
       </CardContent>
+
       <CardFooter className="gap-2 pt-3">
         <Button
           size="sm"

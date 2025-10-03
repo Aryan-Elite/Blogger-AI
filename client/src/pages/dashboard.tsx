@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CreateBlogDialog } from "@/components/create-blog-dialog";
 import { BlogGenerationLoader } from "@/components/blog-generation-loader";
-import { mockApi } from "@/lib/mockApi";
-import { Blog } from "@shared/schema";
+import { api } from '@/lib/mockApi';
+import { Blog } from "@/types/blog";
 import { FileText, Calendar, Edit, TrendingUp } from "lucide-react";
 import { BlogCard } from "@/components/blog-card";
 import { EditBlogDialog } from "@/components/edit-blog-dialog";
@@ -20,14 +20,14 @@ export default function DashboardPage() {
   }, []);
 
   const loadBlogs = async () => {
-    const data = await mockApi.getAllBlogs();
+    const data = await api.getAllBlogs();
     setBlogs(data);
   };
 
   const handleCreateBlog = async (topic: string) => {
     setIsGenerating(true);
     try {
-      await mockApi.createBlog(topic);
+      await api.createBlog(topic);
       await loadBlogs();
       toast({
         title: "Blog created!",
@@ -39,7 +39,7 @@ export default function DashboardPage() {
   };
 
   const handleEditBlog = async (id: string, updates: Partial<Blog>) => {
-    await mockApi.updateBlog(id, updates);
+    await api.updateBlog(id, updates);
     await loadBlogs();
     toast({
       title: "Blog updated",
@@ -48,7 +48,7 @@ export default function DashboardPage() {
   };
 
   const handleDeleteBlog = async (id: string) => {
-    await mockApi.deleteBlog(id);
+    await api.deleteBlog(id);
     await loadBlogs();
     toast({
       title: "Blog deleted",

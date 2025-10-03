@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Blog } from "@shared/schema";
+import { Blog } from "@/types/blog";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,

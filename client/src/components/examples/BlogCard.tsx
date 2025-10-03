@@ -1,5 +1,5 @@
 import { BlogCard } from "../blog-card";
-import { Blog } from "@shared/schema";
+import { Blog } from "@/types/blog";
 
 export default function BlogCardExample() {
   const sampleBlog: Blog = {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { mockApi } from "@/lib/mockApi";
+import { api } from "@/lib/mockApi";
+import { auth } from "@/lib/utils";
 import { Loader2 } from "lucide-react";
 import { SiGoogle } from "react-icons/si";
 
@@ -18,13 +19,25 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
+  // Handle callback like /?token=...
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+    if (token) {
+      auth.setToken(token);
+      // clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
+      setLocation("/dashboard");
+    }
+  }, [setLocation]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual API call
-      await mockApi.login(email, password);
+      const { token } = await api.login(email, password);
+      auth.setToken(token);
       toast({
         title: "Login successful",
         description: "Welcome back!",
@@ -33,9 +46,10 @@ export default function LoginPage() {
     } catch (error) {
       toast({
         title: "Login failed",
-        description: "Invalid credentials. Please try again.",
+        description: error instanceof Error ? error.message : "Invalid credentials. Please try again.",
         variant: "destructive",
       });
+      setLocation("/login-failed");
     } finally {
       setIsLoading(false);
     }
@@ -45,13 +59,8 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
 
     try {
-      // TODO: Replace with actual Google OAuth flow
-      await mockApi.loginWithGoogle();
-      toast({
-        title: "Login successful",
-        description: "Welcome back!",
-      });
-      setLocation("/dashboard");
+      // Start OAuth by hitting backend auth endpoint
+      window.location.href = `http://localhost:3000/api/auth/google`;
     } catch (error) {
       toast({
         title: "Login failed",

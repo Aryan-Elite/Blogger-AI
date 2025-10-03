@@ -1,6 +1,39 @@
-node_modules
-dist
+# Ignore dependencies
+node_modules/
+
+# Build outputs
+/dist/
+/build/
+
+# Caches
+/.cache/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editors/OS
+.vscode/
 .DS_Store
-server/public
-vite.config.ts.*
-*.tar.gz
+Thumbs.db
+
+# Environment files
+.env
+*.env
+**/.env
+**/*.env
+.env.local
+.env.development
+.env.production
+.env.test
+client/.env
+server/.env
+
+# TypeScript
+*.tsbuildinfo
+
+# Coverage
+coverage/

@@ -12,6 +12,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/utils";
 
 const menuItems = [
   {
@@ -40,8 +41,7 @@ export function AppSidebar() {
   const [location, setLocation] = useLocation();
 
   const handleLogout = () => {
-    // TODO: Call actual logout API
-    console.log("Logout clicked");
+    auth.clearToken();
     setLocation("/");
   };
 

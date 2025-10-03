@@ -7,6 +7,9 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import LoginPage from "@/pages/login";
 import DashboardPage from "@/pages/dashboard";
+import { auth } from "@/lib/utils";
+import LoginSuccessPage from "@/pages/login-success";
+import LoginFailedPage from "@/pages/login-failed";
 import SchedulePage from "@/pages/schedule";
 import ViewAllPage from "@/pages/view-all";
 import DraftsPage from "@/pages/drafts";
@@ -27,28 +30,38 @@ function DashboardLayout({ children }: { children: React.ReactNode }) {
   );
 }
 
+function PrivateRoute({ component: Component }: { component: React.ComponentType }) {
+  // minimal guard using localStorage token
+  if (!auth.isAuthenticated()) {
+    return <LoginPage />;
+  }
+  return <Component />;
+}
+
 function Router() {
   return (
     <Switch>
       <Route path="/" component={LoginPage} />
+      <Route path="/login-success" component={LoginSuccessPage} />
+      <Route path="/login-failed" component={LoginFailedPage} />
       <Route path="/dashboard">
         <DashboardLayout>
-          <DashboardPage />
+          <PrivateRoute component={DashboardPage} />
         </DashboardLayout>
       </Route>
       <Route path="/dashboard/schedule">
         <DashboardLayout>
-          <SchedulePage />
+          <PrivateRoute component={SchedulePage} />
         </DashboardLayout>
       </Route>
       <Route path="/dashboard/view-all">
         <DashboardLayout>
-          <ViewAllPage />
+          <PrivateRoute component={ViewAllPage} />
         </DashboardLayout>
       </Route>
       <Route path="/dashboard/drafts">
         <DashboardLayout>
-          <DraftsPage />
+          <PrivateRoute component={DraftsPage} />
         </DashboardLayout>
       </Route>
       <Route component={LoginPage} />
