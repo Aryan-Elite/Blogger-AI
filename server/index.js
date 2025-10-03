@@ -12,6 +12,8 @@ import "./src/config/passport.js";
 const app = express();
 
 // Middleware
+// Trust proxy so Google OAuth callbacks respect X-Forwarded-* headers on Render
+app.set('trust proxy', 1);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(corsMiddleware);

@@ -60,7 +60,8 @@ export default function LoginPage() {
 
     try {
       // Start OAuth by hitting backend auth endpoint
-      window.location.href = `http://localhost:3000/api/auth/google`;
+      const base = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+      window.location.href = `${base.replace(/\/$/, '')}/api/auth/google`;
     } catch (error) {
       toast({
         title: "Login failed",

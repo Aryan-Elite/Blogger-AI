@@ -10,7 +10,10 @@ const authController = new AuthController();
 // Start Google login
 router.get(
   '/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
+  passport.authenticate('google', { 
+    scope: ['profile', 'email'],
+    callbackURL: process.env.GOOGLE_CALLBACK_URL || '/api/auth/google/callback',
+  })
 );
 
 // Callback route

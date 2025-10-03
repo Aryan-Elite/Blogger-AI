@@ -7,7 +7,8 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: "/api/auth/google/callback", // this is relative to your backend
+      // Prefer absolute URL from env in production to avoid redirect_uri_mismatch behind proxies
+      callbackURL: process.env.GOOGLE_CALLBACK_URL || "/api/auth/google/callback",
     },
     async (accessToken, refreshToken, profile, done) => {
       try {
