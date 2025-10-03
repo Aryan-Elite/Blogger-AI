@@ -1,12 +1,13 @@
 import { Blog } from "@/types/blog";
 import { auth } from "@/lib/utils";
 
-const BASE_URL = "http://localhost:3000/api/blogs"; // backend base URL
+const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:3000";
+const BASE_URL = `${API_BASE.replace(/\/$/, '')}/api/blogs`; // backend base URL
 
 export const api = {
   // Auth APIs
   login: async (email: string, password: string) => {
-    const res = await fetch('http://localhost:3000/api/auth/login', {
+    const res = await fetch(`${API_BASE.replace(/\/$/, '')}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
