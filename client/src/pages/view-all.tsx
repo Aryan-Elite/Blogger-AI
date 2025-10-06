@@ -5,12 +5,14 @@ import { Blog } from "@/types/blog";
 import { BlogCard } from "@/components/blog-card";
 import { EditBlogDialog } from "@/components/edit-blog-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type FilterStatus = "all" | "published" | "scheduled" | "draft";
 
 export default function ViewAllPage() {
   const { toast } = useToast();
   const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<FilterStatus>("all");
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
 
@@ -19,8 +21,13 @@ export default function ViewAllPage() {
   }, []);
 
   const loadBlogs = async () => {
-    const data = await api.getAllBlogs();
-    setBlogs(data);
+    setIsLoading(true);
+    try {
+      const data = await api.getAllBlogs();
+      setBlogs(data);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEditBlog = async (id: string, updates: Partial<Blog>) => {
@@ -50,6 +57,35 @@ export default function ViewAllPage() {
     { label: "Scheduled", value: "scheduled" },
     { label: "Draft", value: "draft" },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-8 w-48 mb-2" />
+          <Skeleton className="h-4 w-80" />
+        </div>
+
+        <div className="flex gap-2 flex-wrap">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-24" />
+          ))}
+        </div>
+
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-40 w-full" />
+              <div className="flex gap-2">
+                <Skeleton className="h-9 w-24" />
+                <Skeleton className="h-9 w-24" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

@@ -19,11 +19,21 @@ router.get(
 // Callback route
 router.get(
   '/google/callback',
-  passport.authenticate('google', { 
-    session: false,
-    failureRedirect: `${process.env.FRONTEND_URL}/login-failed?error=auth_failed`
-  }),
-  asyncHandler((req, res) => authController.googleCallback(req, res))
+  (req, res, next) => {
+    passport.authenticate('google', { session: false }, (err, user, info) => {
+      if (err) {
+        return res.redirect(`${process.env.FRONTEND_URL}/login-failed?error=server_error`);
+      }
+      if (!user) {
+        const message = info && info.message ? String(info.message).toLowerCase() : '';
+        const isUnauthorizedDomain = message.includes('only') && message.includes('forecloseai');
+        const errorParam = isUnauthorizedDomain ? 'unauthorized' : 'auth_failed';
+        return res.redirect(`${process.env.FRONTEND_URL}/login-failed?error=${errorParam}`);
+      }
+      req.user = user;
+      return authController.googleCallback(req, res);
+    })(req, res, next);
+  }
 );
 
 // Traditional email/password login with forecloseai.com domain restriction

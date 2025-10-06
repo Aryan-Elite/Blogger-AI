@@ -19,18 +19,30 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
-  // Handle callback like /?token=...
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
+    const error = params.get("error");
+    
     if (token) {
       auth.setToken(token);
       // clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
       setLocation("/dashboard");
+    } else if (error) {
+      // Handle OAuth error (unauthorized email domain)
+      toast({
+        title: "Login failed",
+        description: error === "unauthorized" 
+          ? "Only @foreclose.ai email addresses are allowed." 
+          : "Invalid credentials. Please try again.",
+        variant: "destructive",
+      });
+      setLocation("/login-failed");
+      // clean URL
+      window.history.replaceState({}, document.title, window.location.pathname);
     }
-  }, [setLocation]);
-
+  }, [setLocation, toast]);
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);

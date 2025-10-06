@@ -6,10 +6,12 @@ import { BlogCard } from "@/components/blog-card";
 import { EditBlogDialog } from "@/components/edit-blog-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { FilePlus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DraftsPage() {
   const { toast } = useToast();
   const [blogs, setBlogs] = useState<Blog[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
 
   useEffect(() => {
@@ -17,8 +19,13 @@ export default function DraftsPage() {
   }, []);
 
   const loadBlogs = async () => {
-    const data = await api.getAllBlogs();
-    setBlogs(data.filter((b) => b.status === "draft"));
+    setIsLoading(true);
+    try {
+      const data = await api.getAllBlogs();
+      setBlogs(data.filter((b) => b.status === "draft"));
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEditBlog = async (id: string, updates: Partial<Blog>) => {
@@ -47,6 +54,25 @@ export default function DraftsPage() {
       description: "Your blog is now live!",
     });
   };
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Skeleton className="h-8 w-24 mb-2" />
+          <Skeleton className="h-4 w-80" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-3">
+              <Skeleton className="h-40 w-full" />
+              <Skeleton className="h-9 w-full" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
