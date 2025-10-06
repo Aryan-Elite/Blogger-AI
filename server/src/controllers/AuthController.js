@@ -19,8 +19,7 @@ export class AuthController {
     if (!user) {
       return res.status(404).json({ message: 'Account not found. Please use your company account or contact admin.' });
     }
-    // Allow manual login even if Google is linked, as long as a password exists
-    if (user.googleId && !user.password) {
+    if (user.googleId) {
       return res.status(400).json({ message: 'Use Google login for this account' });
     }
     const isMatch = await user.comparePassword(password);
