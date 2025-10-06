@@ -31,20 +31,23 @@ export class AuthController {
     return res.json({ token, user: { id: user._id, email: user.email, name: user.name } });
   }
 
-  async googleCallback(req, res) {
+  async googleCallback(req, res, frontendBaseOverride) {
     try {
       if (!req.user) {
-        return res.redirect(`${process.env.FRONTEND_URL}/login-failed?error=no_user`);
+        const base = frontendBaseOverride || process.env.FRONTEND_URL;
+        return res.redirect(`${base}/login-failed?error=no_user`);
       }
       const token = jwt.sign(
         { id: req.user._id, email: req.user.email, name: req.user.name },
         process.env.JWT_SECRET,
         { expiresIn: '7d' }
       );
-      return res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
+      const base = frontendBaseOverride || process.env.FRONTEND_URL;
+      return res.redirect(`${base}?token=${token}`);
     } catch (error) {
       console.error('❌ Auth callback error:', error);
-      return res.redirect(`${process.env.FRONTEND_URL}/login-failed?error=server_error`);
+      const base = frontendBaseOverride || process.env.FRONTEND_URL;
+      return res.redirect(`${base}/login-failed?error=server_error`);
     }
   }
 

@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { BlogCard } from "@/components/blog-card";
 import { EditBlogDialog } from "@/components/edit-blog-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { addMinutes } from "date-fns";
 
 export default function SchedulePage() {
   const { toast } = useToast();
@@ -31,8 +32,16 @@ export default function SchedulePage() {
   };
 
   const handleSchedule = async (blogId: string, scheduledFor: Date) => {
-    await api.scheduleBlog(blogId, scheduledFor);
-    await loadBlogs();
+    // Optimistic schedule: update the one blog to scheduled
+    setBlogs((prev) => prev.map((b) => b.id === blogId ? { ...b, status: "scheduled", scheduledFor: scheduledFor.toISOString() } as Blog : b));
+    try {
+      await api.scheduleBlog(blogId, scheduledFor);
+    } catch (error) {
+      // Re-fetch to revert if failed
+      await loadBlogs();
+      toast({ title: "Schedule failed", description: error instanceof Error ? error.message : "Could not schedule blog.", variant: "destructive" });
+      return;
+    }
     toast({
       title: "Blog scheduled",
       description: "Your blog has been scheduled for publishing.",
@@ -40,8 +49,15 @@ export default function SchedulePage() {
   };
 
   const handleEditBlog = async (id: string, updates: Partial<Blog>) => {
-    await api.updateBlog(id, updates);
-    await loadBlogs();
+    // Optimistic update
+    setBlogs((prev) => prev.map((b) => (b.id === id ? { ...b, ...updates } : b)));
+    try {
+      await api.updateBlog(id, updates);
+    } catch (error) {
+      await loadBlogs();
+      toast({ title: "Update failed", description: error instanceof Error ? error.message : "Could not save changes.", variant: "destructive" });
+      return;
+    }
     toast({
       title: "Blog updated",
       description: "Your changes have been saved.",
@@ -49,8 +65,16 @@ export default function SchedulePage() {
   };
 
   const handleDeleteBlog = async (id: string) => {
-    await api.deleteBlog(id);
-    await loadBlogs();
+    // Optimistic remove
+    const prev = blogs;
+    setBlogs((cur) => cur.filter((b) => b.id !== id));
+    try {
+      await api.deleteBlog(id);
+    } catch (error) {
+      setBlogs(prev);
+      toast({ title: "Delete failed", description: error instanceof Error ? error.message : "Could not delete blog.", variant: "destructive" });
+      return;
+    }
     toast({
       title: "Blog deleted",
       description: "The blog has been removed.",

@@ -31,8 +31,15 @@ export default function ViewAllPage() {
   };
 
   const handleEditBlog = async (id: string, updates: Partial<Blog>) => {
-    await api.updateBlog(id, updates);
-    await loadBlogs();
+    // Optimistic update
+    setBlogs((prev) => prev.map((b) => (b.id === id ? { ...b, ...updates } : b)));
+    try {
+      await api.updateBlog(id, updates);
+    } catch (error) {
+      await loadBlogs();
+      toast({ title: "Update failed", description: error instanceof Error ? error.message : "Could not save changes.", variant: "destructive" });
+      return;
+    }
     toast({
       title: "Blog updated",
       description: "Your changes have been saved.",
@@ -40,8 +47,16 @@ export default function ViewAllPage() {
   };
 
   const handleDeleteBlog = async (id: string) => {
-    await api.deleteBlog(id);
-    await loadBlogs();
+    // Optimistic remove
+    const prev = blogs;
+    setBlogs((cur) => cur.filter((b) => b.id !== id));
+    try {
+      await api.deleteBlog(id);
+    } catch (error) {
+      setBlogs(prev);
+      toast({ title: "Delete failed", description: error instanceof Error ? error.message : "Could not delete blog.", variant: "destructive" });
+      return;
+    }
     toast({
       title: "Blog deleted",
       description: "The blog has been removed.",

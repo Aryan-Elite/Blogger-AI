@@ -5,7 +5,7 @@ import { Blog } from "@/types/blog";
 import { BlogCard } from "@/components/blog-card";
 import { EditBlogDialog } from "@/components/edit-blog-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { FilePlus } from "lucide-react";
+import { FilePlus, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DraftsPage() {
@@ -13,6 +13,7 @@ export default function DraftsPage() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingBlog, setEditingBlog] = useState<Blog | null>(null);
+  const [publishingId, setPublishingId] = useState<string | null>(null);
 
   useEffect(() => {
     loadBlogs();
@@ -29,8 +30,16 @@ export default function DraftsPage() {
   };
 
   const handleEditBlog = async (id: string, updates: Partial<Blog>) => {
-    await api.updateBlog(id, updates);
-    await loadBlogs();
+    // Optimistic update
+    setBlogs((prev) => prev.map((b) => (b.id === id ? { ...b, ...updates } : b)));
+    try {
+      await api.updateBlog(id, updates);
+    } catch (error) {
+      // Revert on error
+      await loadBlogs();
+      toast({ title: "Update failed", description: error instanceof Error ? error.message : "Could not save changes.", variant: "destructive" });
+      return;
+    }
     toast({
       title: "Blog updated",
       description: "Your changes have been saved.",
@@ -38,8 +47,16 @@ export default function DraftsPage() {
   };
 
   const handleDeleteBlog = async (id: string) => {
-    await api.deleteBlog(id);
-    await loadBlogs();
+    // Optimistic remove
+    const prev = blogs;
+    setBlogs((cur) => cur.filter((b) => b.id !== id));
+    try {
+      await api.deleteBlog(id);
+    } catch (error) {
+      setBlogs(prev);
+      toast({ title: "Delete failed", description: error instanceof Error ? error.message : "Could not delete blog.", variant: "destructive" });
+      return;
+    }
     toast({
       title: "Blog deleted",
       description: "The blog has been removed.",
@@ -47,12 +64,23 @@ export default function DraftsPage() {
   };
 
   const handlePublish = async (id: string) => {
-    await api.publishBlog(id);
-    await loadBlogs();
+    setPublishingId(id);
+    // Optimistically remove from drafts list (it becomes published)
+    const prev = blogs;
+    setBlogs((cur) => cur.filter((b) => b.id !== id));
+    try {
+      await api.publishBlog(id);
+    } catch (error) {
+      setBlogs(prev);
+      toast({ title: "Publish failed", description: error instanceof Error ? error.message : "Could not publish blog.", variant: "destructive" });
+      setPublishingId(null);
+      return;
+    }
     toast({
       title: "Blog published",
       description: "Your blog is now live!",
     });
+    setPublishingId(null);
   };
 
   if (isLoading) {
@@ -104,8 +132,16 @@ export default function DraftsPage() {
                 className="w-full"
                 onClick={() => handlePublish(blog.id)}
                 data-testid={`button-publish-${blog.id}`}
+                disabled={publishingId === blog.id}
               >
-                Publish Now
+                {publishingId === blog.id ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Publishing...
+                  </>
+                ) : (
+                  "Publish Now"
+                )}
               </Button>
             </div>
           ))}
