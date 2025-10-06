@@ -37,8 +37,10 @@ router.get(
       if (!user) {
         const message = info && info.message ? String(info.message).toLowerCase() : '';
         const isUnauthorizedDomain = message.includes('only') && message.includes('forecloseai');
-        const errorParam = isUnauthorizedDomain ? 'unauthorized' : 'auth_failed';
-        return res.redirect(`${frontendBase}/login-failed?error=${errorParam}`);
+        if (isUnauthorizedDomain) {
+          return res.redirect(`${frontendBase}/login-failed`);
+        }
+        return res.redirect(`${frontendBase}/login-failed?error=auth_failed`);
       }
       req.user = user;
       return authController.googleCallback(req, res, frontendBase);
