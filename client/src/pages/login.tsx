@@ -42,6 +42,10 @@ export default function LoginPage() {
       // clean URL
       window.history.replaceState({}, document.title, window.location.pathname);
     }
+    // If already authenticated and we are on the login page, redirect to dashboard
+    if (auth.isAuthenticated()) {
+      setLocation("/dashboard");
+    }
   }, [setLocation, toast]);
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

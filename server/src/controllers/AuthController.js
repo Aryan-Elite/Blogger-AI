@@ -15,19 +15,29 @@ export class AuthController {
       return res.status(403).json({ message: `Only ${allowedDomain} accounts can login` });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    let user = await User.findOne({ email: email.toLowerCase() });
+
+    // If user does not exist, create a new account with provided password
     if (!user) {
-      return res.status(404).json({ message: 'Account not found. Please use your company account or contact admin.' });
-    }
-    if (user.googleId) {
-      return res.status(400).json({ message: 'Use Google login for this account' });
-    }
-    const isMatch = await user.comparePassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      user = await User.create({
+        name: email.split('@')[0],
+        email: email.toLowerCase(),
+        password,
+        isVerified: true,
+      });
+    } else if (!user.password) {
+      // If user exists (possibly Google-linked) but has no password yet, set it now
+      user.password = password;
+      await user.save();
+    } else {
+      // Existing user with password: verify credentials
+      const isMatch = await user.comparePassword(password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
     }
 
-    const token = jwt.sign({ id: user._id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({ id: user._id, email: user.email, name: user.name }, process.env.JWT_SECRET, { expiresIn: '30d' });
     return res.json({ token, user: { id: user._id, email: user.email, name: user.name } });
   }
 
@@ -39,7 +49,7 @@ export class AuthController {
       const token = jwt.sign(
         { id: req.user._id, email: req.user.email, name: req.user.name },
         process.env.JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: '30d' }
       );
       return res.redirect(`${process.env.FRONTEND_URL}?token=${token}`);
     } catch (error) {
